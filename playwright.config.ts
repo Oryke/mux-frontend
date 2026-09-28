@@ -82,5 +82,18 @@ export default defineConfig({
 			name: "full-mobile",
 			use: { ...devices["Pixel 7"] },
 		},
+		// Optional visual regression tier (issue #840). Opt-in only via
+		// `VISUAL_REGRESSION=1` (see `pnpm run test:visual`) so screenshot
+		// baselines never gate the smoke/full tiers.
+		...(process.env.VISUAL_REGRESSION === "1"
+			? [
+					{
+						name: "visual",
+						testDir: "./tests/visual",
+						testMatch: "**/*.visual.ts",
+						use: { ...devices["Desktop Chrome"] },
+					},
+				]
+			: []),
 	],
 });

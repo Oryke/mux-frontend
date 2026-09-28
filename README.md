@@ -192,6 +192,15 @@ See [`docs/security-ux-guards.md`](docs/security-ux-guards.md) for the
 security/UX invariants and `tests/e2e/` for the end-to-end coverage of the
 spending-limits flow.
 
+## Quality gates
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm run lint` | ESLint, including `jsx-a11y` rules for interactive elements (keyboard handlers, focusability, roles). |
+| `pnpm run typecheck:unused` | Type-check with `noUnusedLocals` / `noUnusedParameters` (`tsconfig.unused.json`). Opt-in until existing unused code is cleaned up. |
+| `pnpm run analyze:bundle` | After `pnpm run build`, prints the largest client chunks and fails if gzip size exceeds `BUNDLE_BUDGET_TOTAL_KB` (default 1500) or `BUNDLE_BUDGET_CHUNK_KB` (default 350). Runs in CI after the build. |
+| `pnpm run test:visual` | Optional Playwright screenshot comparison (`tests/visual/`). Never part of the smoke/full tiers; refresh baselines with `pnpm run test:visual:update`. |
+
 ## Rate limits, maintenance, and feature-flagged sends
 
 - **429 Retry-After UX:** reads auto-retry briefly and writes never do. The
