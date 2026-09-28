@@ -6,7 +6,8 @@
   Corepack to enforce the exact pnpm version) and an `engines` block that
   fails npm/yarn with an explicit `please-use-pnpm` message if someone tries
   to install with them directly. Added a `preinstall` script that runs
-  `scripts/verify-pnpm.js`.
+  `scripts/verify-pnpm.js` (the hook now runs `scripts/check-node-engine.mjs`
+  instead; see `docs/node-engine.md`).
 - `scripts/verify-pnpm.js` — inspects `npm_config_user_agent` (set by every
   package manager) at install time and hard-fails with instructions if the
   installer isn't pnpm. This is the first line of defense - it fires before
