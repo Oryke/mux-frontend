@@ -6,7 +6,7 @@
 		"node": ">=22"
 	},
 	"scripts": {
-		"preinstall": "node ./scripts/check-node-engine.mjs",
+		"preinstall": "node ./scripts/check-node-engine.mjs && node ./scripts/check-package-manager.mjs",
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",

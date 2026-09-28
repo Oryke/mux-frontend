@@ -27,7 +27,10 @@ Issue #817 ("engines node>=18 enforced").
 
    The script has no dependencies and never prints anything but the versions
    involved, so it is safe in CI logs.
-3. `tests/ci-workflow.test.ts` asserts all of the above on every PR.
+3. The same hook then runs `scripts/check-package-manager.mjs`, which rejects
+   any installer other than pnpm (`PACKAGE_MANAGER_UNSUPPORTED`). The Node
+   check runs first so an unsupported Node is reported before anything else.
+4. `tests/ci-workflow.test.ts` asserts all of the above on every PR.
 
 ## Contributors
 

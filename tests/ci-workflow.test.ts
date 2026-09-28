@@ -7,6 +7,7 @@ import {
   MIN_SUPPORTED_NODE_MAJOR,
   parseMinimum,
 } from '../scripts/check-node-engine.mjs';
+import { checkPackageManager } from '../scripts/check-package-manager.mjs';
 
 const repoRoot = resolve(__dirname, '..');
 
@@ -130,9 +131,18 @@ describe('engines node>=18 enforced', () => {
     expect(nextMin && ourMin && compareVersions(ourMin, nextMin)).toBeGreaterThanOrEqual(0);
   });
 
-  it('enforces engines on install via .npmrc and the preinstall hook', () => {
+  it('enforces engines, then pnpm-only, on install via .npmrc and the preinstall hook', () => {
     expect(readRepoFile('.npmrc')).toMatch(/^engine-strict=true$/m);
-    expect(pkg.scripts?.preinstall).toBe('node ./scripts/check-node-engine.mjs');
+    expect(pkg.scripts?.preinstall).toBe(
+      'node ./scripts/check-node-engine.mjs && node ./scripts/check-package-manager.mjs',
+    );
+  });
+
+  it('rejects installs from any package manager but pnpm', () => {
+    expect(checkPackageManager('pnpm/9.15.9 npm/? node/v22.0.0 linux x64')).toBeNull();
+    expect(checkPackageManager('npm/10.8.2 node/v22.0.0 linux x64')).toMatch(/^PACKAGE_MANAGER_UNSUPPORTED:/);
+    expect(checkPackageManager('yarn/1.22.22 npm/? node/v22.0.0')).toMatch(/^PACKAGE_MANAGER_UNSUPPORTED:/);
+    expect(checkPackageManager(undefined)).toMatch(/^PACKAGE_MANAGER_UNSUPPORTED:/);
   });
 
   it('pins .nvmrc and every CI setup-node to a version that satisfies engines', () => {
@@ -149,8 +159,9 @@ describe('engines node>=18 enforced', () => {
   });
 
   it('rejects Node versions below the declared floor', () => {
+    const [major] = parseMinimum(range) ?? [0];
     expect(checkNodeEngine(range, 'v16.20.2')).toMatch(/^ENGINE_UNSUPPORTED_NODE:/);
-    expect(checkNodeEngine(range, 'v18.0.0')).toMatch(/^ENGINE_UNSUPPORTED_NODE:/);
+    expect(checkNodeEngine(range, `v${major - 1}.99.99`)).toMatch(/^ENGINE_UNSUPPORTED_NODE:/);
     expect(checkNodeEngine(range, process.version)).toBeNull();
   });
 
